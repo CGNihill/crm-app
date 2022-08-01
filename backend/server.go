@@ -70,7 +70,7 @@ func postData(w http.ResponseWriter, r *http.Request) {
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
-	indexFile, err := os.Open(". ./static/index.html")
+	indexFile, err := os.Open("./static/index.html")
 	if err != nil {
 		io.WriteString(w, "error reading html file")
 		return
@@ -81,7 +81,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	io.Copy(w, indexFile)
 }
 
-func Stat() {
+func Start() {
 	ensureDataFileExists()
 
 	r := mux.NewRouter()
