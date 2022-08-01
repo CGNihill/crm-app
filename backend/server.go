@@ -50,7 +50,24 @@ func getData(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func postData(w http.ResponseWriter, r *http.Request) {}
+func postData(w http.ResponseWriter, r *http.Request) {
+	dataFile, err := os.OpenFile(dataFilePath, os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		log.Println("file open on post func :", err.Error())
+		w.WriteHeader(500)
+		io.WriteString(w, "error reading file")
+		return
+	}
+
+	defer dataFile.Close()
+
+	_, err = io.Copy(w, dataFile)
+	if err != nil {
+		log.Println("copy from request :", err.Error())
+		w.WriteHeader(500)
+		return
+	}
+}
 
 func homePage(w http.ResponseWriter, r *http.Request) {
 	indexFile, err := os.Open(". ./static/index.html")
