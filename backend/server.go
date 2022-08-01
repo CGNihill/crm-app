@@ -5,6 +5,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/gorilla/mux"
 )
 
 const dataFilePath = "./data/crm-app-out.txt"
@@ -47,6 +50,8 @@ func getData(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func postData(w http.ResponseWriter, r *http.Request) {}
+
 func homePage(w http.ResponseWriter, r *http.Request) {
 	indexFile, err := os.Open(". ./static/index.html")
 	if err != nil {
@@ -57,4 +62,25 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	defer indexFile.Close()
 
 	io.Copy(w, indexFile)
+}
+
+func Stat() {
+	ensureDataFileExists()
+
+	r := mux.NewRouter()
+
+	srv := &http.Server{
+		Handler:      r,
+		Addr:         "127.0.0.1:8000",
+		WriteTimeout: 60 * time.Second,
+		ReadTimeout:  60 * time.Second,
+	}
+
+	r.HandleFunc("/", homePage)
+	r.Methods("GET").Path("/data").HandlerFunc(getData)
+	r.Methods("POST").Path("/data").HandlerFunc(postData)
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../static"))))
+
+	log.Printf("Server started on %s\n", srv.Addr)
+	log.Fatal(srv.ListenAndServe())
 }
